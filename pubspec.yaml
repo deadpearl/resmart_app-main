@@ -1,0 +1,51 @@
+name: resmart
+description: "Resmart app"
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.2.5 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  mask_text_input_formatter: ^2.4.0
+  cupertino_icons: ^1.0.2
+  dropdown_button2: ^2.3.9
+  carousel_slider: ^4.2.1
+  flutter_event_calendar: ^1.0.0
+  shared_preferences: ^2.0.17
+  dio: ^5.1.1
+  fluttertoast: ^8.2.1
+  percent_indicator: ^4.0.1
+  http: ^1.2.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^2.0.0
+
+flutter:
+  uses-material-design: true
+  fonts:
+    - family: Rubik
+      fonts:
+        - asset: assets/fonts/Rubik/Rubik-Black.ttf
+        - asset: assets/fonts/Rubik/Rubik-BlackItalic.ttf
+        - asset: assets/fonts/Rubik/Rubik-Bold.ttf
+        - asset: assets/fonts/Rubik/Rubik-BoldItalic.ttf
+        - asset: assets/fonts/Rubik/Rubik-ExtraBold.ttf
+        - asset: assets/fonts/Rubik/Rubik-ExtraBoldItalic.ttf
+        - asset: assets/fonts/Rubik/Rubik-Italic.ttf
+        - asset: assets/fonts/Rubik/Rubik-Italic-VariableFont_wght.ttf
+        - asset: assets/fonts/Rubik/Rubik-Light.ttf
+        - asset: assets/fonts/Rubik/Rubik-LightItalic.ttf
+        - asset: assets/fonts/Rubik/Rubik-Medium.ttf
+        - asset: assets/fonts/Rubik/Rubik-MediumItalic.ttf
+        - asset: assets/fonts/Rubik/Rubik-Regular.ttf
+        - asset: assets/fonts/Rubik/Rubik-SemiBold.ttf
+        - asset: assets/fonts/Rubik/Rubik-SemiBoldItalic.ttf
+        - asset: assets/fonts/Rubik/Rubik-VariableFont_wght.ttf
+  assets:
+    - assets/images/
