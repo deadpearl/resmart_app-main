@@ -38,7 +38,7 @@ class _MainPage extends State<MainPage> with TickerProviderStateMixin {
           body: TabBarView(
             physics: const NeverScrollableScrollPhysics(),
             controller: _motionTabBarController,
-            children: const <Widget>[
+            children:  <Widget>[
               HomePage(),
               OrdersPage(),
               CartPage(),
