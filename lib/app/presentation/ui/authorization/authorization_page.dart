@@ -12,6 +12,7 @@ import 'package:resmart/app/presentation/ui/custom/widget/primary_button.dart';
 import 'package:resmart/app/presentation/ui/custom/widget/primary_text_button.dart';
 import 'package:resmart/app/presentation/ui/custom/widget/primary_text_field.dart';
 import 'package:resmart/app/presentation/ui/main/main_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthorizationPage extends StatefulWidget {
 
@@ -56,8 +57,10 @@ Future<void> _login() async {
       final data = jsonDecode(response.body);
       final token = data['token'];
       if (token != null) {
-        await _userProvider.setAuthToken(token); // Сохраняем токен через UserProvider
-        _changePage(); // Перенаправляем на главную страницу
+           SharedPreferences prefs = await SharedPreferences.getInstance();
+        prefs.setString('token', token);
+        _changePage();
+        print('SUCESS LOGIN'); // Перенаправляем на главную страницу
       } else {
         // Обработка ошибки: токен не был получен
         print('Ошибка: токен не был получен');
@@ -88,6 +91,7 @@ Future<void> _login() async {
                   ),
                 ),
                 Expanded(
+                   child: SingleChildScrollView(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -118,6 +122,7 @@ Future<void> _login() async {
                       )
                     ],
                   ),
+                   ),
                 ),
                 Container(
                   margin: const EdgeInsets.only(bottom: 14),
