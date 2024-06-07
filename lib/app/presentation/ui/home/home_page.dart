@@ -49,8 +49,9 @@ class _HomePageState extends State<HomePage> {
     );
 
     if (response.statusCode == 200) {
-      print(response.body);
-      return jsonDecode(response.body);
+    String responseBody = utf8.decode(response.bodyBytes);
+    print(responseBody);
+    return jsonDecode(responseBody);
     } else {
       throw Exception('Failed to load products');
     }
@@ -237,7 +238,7 @@ class _HomePageState extends State<HomePage> {
 Widget _generateProducts(BuildContext context, List<dynamic> products) {
   Size size = MediaQuery.of(context).size;
   var itemWidth = (size.width - 54) / 2;
-  var itemHeight = itemWidth * 1.6; // Adjust the height as needed
+  var itemHeight = itemWidth * 1.4; // Adjust the height as needed
 
   List<Widget> productWidgets = [];
   for (int i = 0; i < products.length; i += 2) {
