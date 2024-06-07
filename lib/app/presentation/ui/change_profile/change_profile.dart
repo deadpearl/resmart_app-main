@@ -8,6 +8,20 @@ import 'package:resmart/app/presentation/ui/custom/widget/header_text.dart';
 import 'package:resmart/app/presentation/ui/custom/widget/primary_button.dart';
 import 'package:resmart/app/presentation/ui/custom/widget/primary_text_field.dart';
 
+import 'dart:convert';
+
+import 'package:resmart/app/domain/provider/api.dart';
+import 'package:resmart/app/presentation/ui/change_password/change_password.dart';
+import 'package:resmart/app/presentation/ui/change_profile/change_profile.dart';
+import 'package:resmart/app/presentation/ui/custom/constant/app_color.dart';
+import 'package:resmart/app/presentation/ui/custom/constant/app_size.dart';
+import 'package:resmart/app/presentation/ui/custom/navigation/navigation_utils.dart';
+import 'package:resmart/app/presentation/ui/custom/widget/header_text.dart';
+import 'package:resmart/app/presentation/ui/feedback/feedback_page.dart';
+import 'package:resmart/app/presentation/ui/splash/splash_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+
 class ChangeProfilePage extends StatefulWidget {
 
   const ChangeProfilePage({super.key});
@@ -21,13 +35,51 @@ class ChangeProfilePage extends StatefulWidget {
 class _ChangeProfilePage extends State<ChangeProfilePage> {
 
   final _usernameController = TextEditingController();
+var profileinfo;
+  final _searchController = TextEditingController();
+  bool _isLoading = true; // Переменная для отслеживания состояния загрузки
+
+  @override
+  void initState() {
+    super.initState();
+    fetchUserData();
+  }
+
+ Future<void> fetchUserData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString('token');
+
+    print('token $token');
+    final response = await http.get(
+      Uri.parse('$baseUrl/my'),
+      headers: {
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      String responseBody = utf8.decode(response.bodyBytes);
+      print(responseBody);
+      setState(() {
+        profileinfo = jsonDecode(responseBody);
+        _isLoading = false; // Завершаем загрузку после получения данных
+      });
+    } else {
+      setState(() {
+        _isLoading = false; // Завершаем загрузку даже в случае ошибки
+      });
+      throw Exception('Failed to load profile');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
         backgroundColor: Colors.white,
-        body: Container(
+        body: _isLoading 
+        ? Center(child: CircularProgressIndicator()) // Показ индикатора загрузки
+        : profileinfo != null ? Container(
           padding: const EdgeInsets.only(left: AppSize.horizontal,  right: AppSize.horizontal),
           child: Column(
             children: [
@@ -52,10 +104,43 @@ class _ChangeProfilePage extends State<ChangeProfilePage> {
                 margin: const EdgeInsets.only(top: 20),
                 child: PrimaryTextField(
                   hint: "Имя пользователя",
-                  controller: _usernameController,
+                  controller: TextEditingController(text: profileinfo['name']),
                   action: TextInputAction.done,
                 ),
               ),
+              Container(
+                margin: const EdgeInsets.only(top: 20),
+                child: PrimaryTextField(
+                  hint: "Никнейм",
+                  controller: TextEditingController(text: profileinfo['username']),
+                  action: TextInputAction.done,
+                ),
+              ),
+              Container(
+                margin: const EdgeInsets.only(top: 20),
+                child: PrimaryTextField(
+                  hint: "Эмейл",
+                   controller: TextEditingController(text: profileinfo['email']),
+                  action: TextInputAction.done,
+                ),
+              ),
+              Container(
+                margin: const EdgeInsets.only(top: 20),
+                child: PrimaryTextField(
+                  hint: "Номер Телефона",
+                   controller: TextEditingController(text: profileinfo['phone']),
+                  action: TextInputAction.done,
+                ),
+              ),
+              Container(
+                margin: const EdgeInsets.only(top: 20),
+                child: PrimaryTextField(
+                  hint: "Адрес",
+                   controller: TextEditingController(text: profileinfo['address']),
+                  action: TextInputAction.done,
+                ),
+              ),
+             
               Expanded(
                 child: Container(),
               ),
@@ -70,7 +155,7 @@ class _ChangeProfilePage extends State<ChangeProfilePage> {
               ),
             ],
           ),
-        )
+        ) : Center(child: Text('Не удалось загрузить профиль. Пожалуйста, попробуйте еще раз.')),
       ),
     );
   }
