@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:resmart/app/domain/provider/api.dart';
 import 'package:resmart/app/domain/provider/user_provider.dart';
@@ -20,15 +21,19 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../custom/navigation/motion_tab_bar.dart';
 
-
 class HomePage extends StatefulWidget {
   @override
   _HomePageState createState() => _HomePageState();
 }
+class Category {
+  final String name;
+  final String imageUrl;
 
+  Category({required this.name, required this.imageUrl});
+}
 
 class _HomePageState extends State<HomePage> {
- late Future<List<dynamic>> _futureProducts;
+  late Future<List<dynamic>> _futureProducts;
   final _searchController = TextEditingController();
   @override
   void initState() {
@@ -36,8 +41,20 @@ class _HomePageState extends State<HomePage> {
     _futureProducts = fetchProducts();
   }
 
+final List<Map<String, String>> categories = [
+    {'name': 'Овощи', 'imageUrl': 'assets/images/1.jpg'},
+    {'name': 'Напитки', 'imageUrl': 'assets/images/2.jpg'},
+    {'name': 'Хоз товары', 'imageUrl': 'assets/images/3.jpg'},
+    {'name': 'Алкогольные Напитки', 'imageUrl': 'assets/images/4.jpeg'},
+    {'name': 'Сырная', 'imageUrl': 'assets/images/5.jpeg'},
+    {'name': 'Молочные', 'imageUrl': 'assets/images/6.jpg'},
+  ];
+
+
+
+
   Future<List<dynamic>> fetchProducts() async {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
+    SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString('token');
 
     print('token $token');
@@ -49,9 +66,9 @@ class _HomePageState extends State<HomePage> {
     );
 
     if (response.statusCode == 200) {
-    String responseBody = utf8.decode(response.bodyBytes);
-    print(responseBody);
-    return jsonDecode(responseBody);
+      String responseBody = utf8.decode(response.bodyBytes);
+      print(responseBody);
+      return jsonDecode(responseBody);
     } else {
       throw Exception('Failed to load products');
     }
@@ -59,181 +76,209 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return 
-    
-    Scaffold(
+    return Scaffold(
       backgroundColor: AppColor.background,
       body: ScrollConfiguration(
-        behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            Container(
-              margin: const EdgeInsets.only(top: AppSize.topMargin - 10, left: 16),
-              child: Row(
-                children: [
-                  InkWell(
-                    onTap: () {
-                      NavigationUtils.push(context, const CitySelectorPage());
-                    },
-                    borderRadius: BorderRadius.circular(10),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
-                      child: const Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            UserProvider.defaultCity,
-                            style: TextStyle(
-                                color: AppColor.text,
-                                fontFamily: 'Rubik',
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500
+          behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
+          child: ListView(
+            padding: EdgeInsets.zero,
+            children: [
+              Container(
+                margin: const EdgeInsets.only(
+                    top: AppSize.topMargin - 10, left: 16),
+                child: Row(
+                  children: [
+                    InkWell(
+                      onTap: () {
+                        NavigationUtils.push(context, const CitySelectorPage());
+                      },
+                      borderRadius: BorderRadius.circular(10),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 2),
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              UserProvider.defaultCity,
+                              style: TextStyle(
+                                  color: AppColor.text,
+                                  fontFamily: 'Rubik',
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500),
                             ),
-                          ),
-                          Icon(
-                            Icons.arrow_drop_down,
-                            color: AppColor.text,
-                            size: 18,
-                          )
-                        ],
+                            Icon(
+                              Icons.arrow_drop_down,
+                              color: AppColor.text,
+                              size: 18,
+                            )
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                  Expanded(child: Container())
-                ],
+                    Expanded(child: Container())
+                  ],
+                ),
               ),
-            ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: AppSize.horizontal),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const HeaderText("Главная"),
-                  Container(
-                    margin: const EdgeInsets.only(top: 8, bottom: 18),
-                    child: SearchTextField(
-                      hint: "Магазин или продукт",
-                      controller: _searchController,
-                      action: TextInputAction.done,
-                    ),
-                  )
-                ],
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: AppSize.horizontal),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const HeaderText("Главная"),
+                    Container(
+                      margin: const EdgeInsets.only(top: 8, bottom: 18),
+                      child: SearchTextField(
+                        hint: "Магазин или продукт",
+                        controller: _searchController,
+                        action: TextInputAction.done,
+                      ),
+                    )
+                  ],
+                ),
               ),
-            ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0),
-              child:  FutureBuilder<List<dynamic>>(
-        future: _futureProducts,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(child: Text('No products found'));
-          }
 
-           return SingleChildScrollView(
-              child: _generateProducts(context, snapshot.data!),
+
+Center(
+        child: CarouselSlider(
+          options: CarouselOptions(
+            height: 250,
+            autoPlay: true,
+            enlargeCenterPage: true,
+          ),
+          items: categories.map((category) {
+            return Builder(
+              builder: (BuildContext context) {
+                return Container(
+
+
+                  width: MediaQuery.of(context).size.width,
+                  margin: EdgeInsets.only(left: 5.0, top: 5.0, right: 5.0, bottom: 5.0),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(15),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.5),
+                        spreadRadius: 5,
+                        blurRadius: 7,
+                        offset: Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Image.asset(
+                        "${category['imageUrl']!}",
+          fit: BoxFit.cover,
+          height: 100, // Fixed height for the image
+          width: double.infinity, 
+                    ),
+                      
+                      SizedBox(height: 10),
+                      Text(
+                        category['name']!,
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                      SizedBox(height: 10),
+                      ElevatedButton(
+                        onPressed: () {
+                          // Обработка нажатия кнопки
+                        },
+                        child: Text('Перейти'),
+                      ),
+                    ],
+                  ),
+                );
+              },
             );
-        },
+          }).toList(),
+        ),
       ),
-            ),
-          ],
-        )
-      ),
-      //    bottomNavigationBar: BottomNavigationBar(
-      //   currentIndex: 0,
-      //   onTap: (int index) {
-      //     // Вызываем функцию _onItemTapped и передаем в нее индекс выбранного элемента
-      //     _onItemTapped(index);
-      //   },
-      //   items: const [
-      //     BottomNavigationBarItem(
-      //       icon: Padding(
-      //         padding:
-      //             EdgeInsets.only(top: 14.0), // Увеличиваем отступ по вертикали
-      //         child: Image(
-      //           image: AssetImage('assets/images/home.png'),
-      //           height: 24, // Задаем высоту иконки
-      //         ),
-      //       ),
-      //       label: '',
-      //     ),
-      //     BottomNavigationBarItem(
-      //       icon: Padding(
-      //         padding: EdgeInsets.symmetric(
-      //             vertical: 12.0), // Увеличиваем отступ по вертикали
-      //         child: Image(
-      //           image: AssetImage('assets/images/orders.png'),
-      //           height: 24, // Задаем высоту иконки
-      //         ),
-      //       ),
-      //       label: 'Search',
-      //     ),
-      //     BottomNavigationBarItem(
-      //       icon: Padding(
-      //         padding: EdgeInsets.symmetric(
-      //             vertical: 12.0), // Увеличиваем отступ по вертикали
-      //         child: Image(
-      //           image: AssetImage('assets/images/cart.png'),
-      //           height: 30, // Задаем высоту иконки
-      //         ),
-      //       ),
-      //       label: 'Notifications',
-      //     ),
-      //     BottomNavigationBarItem(
-      //       icon: Padding(
-      //         padding: EdgeInsets.symmetric(
-      //             vertical: 12.0), // Увеличиваем отступ по вертикали
-      //         child: Image(
-      //           image: AssetImage('assets/images/profile.png'),
-      //           height: 24, // Задаем высоту иконки
-      //         ),
-      //       ),
-      //       label: 'Profile',
-      //     ),
-      //   ],
-      // ),
+
+              
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                child: FutureBuilder<List<dynamic>>(
+                  future: _futureProducts,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Center(child: CircularProgressIndicator());
+                    } else if (snapshot.hasError) {
+                      return Center(child: Text('Error: ${snapshot.error}'));
+                    } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                      return Center(child: Text('No products found'));
+                    }
+
+                    return SingleChildScrollView(
+                      child: _generateProducts(context, snapshot.data!),
+                    );
+                  },
+                ),
+              ),
+
+
+
+
+            ],
+          )),
     );
   }
-  // void _onItemTapped(int index) {
-  //   print(index);
-  //   switch (index) {
-  //     case 0:
-  //       print('NEWS:');
-  //       Navigator.pushReplacement(
-  //           context, MaterialPageRoute(builder: (context) => HomePage()));
-  //       // Обработка нажатия на элемент "News"
-  //       // Навигация на соответствующую страницу или выполнение действия
-  //       break;
-  //     case 1:
-  //       print('FIRE:');
-  //       Navigator.pushReplacement(context,
-  //           MaterialPageRoute(builder: (context) => OrdersPage()));
-  //       // Обработка нажатия на элемент "Search"
-  //       // Навигация на соответствующую страницу или выполнение действия
-  //       break;
-  //     case 2:
-  //       print('NOTIFICATIONS:');
-  //       Navigator.pushReplacement(context,
-  //           MaterialPageRoute(builder: (context) => CartPage()));
-  //       // Обработка нажатия на элемент "Notifications"
-  //       // Навигация на соответствующую страницу или выполнение действия
-  //       break;
-  //     case 3:
-  //       print('PROFILE:');
-  //       Navigator.pushReplacement(
-  //           context, MaterialPageRoute(builder: (context) => ProfilePage()));
-  //       // Обработка нажатия на элемент "Profile"
-  //       // Навигация на соответствующую страницу или выполнение действия
-  //       break;
-  //     default:
-  //       break;
-  //   }
-  // }
+}
+
+
+class CategoryCard extends StatelessWidget {
+  final Category category;
+
+  CategoryCard({required this.category});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 200,
+      margin: EdgeInsets.symmetric(horizontal: 8),
+      padding: EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 8,
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Image.asset(
+            category.imageUrl,
+            height: 100,
+            width: 100,
+            fit: BoxFit.cover,
+          ),
+          SizedBox(height: 16),
+          Text(
+            category.name,
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          SizedBox(height: 16),
+          ElevatedButton(
+            onPressed: () {
+              // Здесь можно добавить навигацию на нужный экран
+            },
+            child: Text('Перейти'),
+          ),
+        ],
+      ),
+    );
   }
+}
 
 Widget _generateProducts(BuildContext context, List<dynamic> products) {
   Size size = MediaQuery.of(context).size;
@@ -247,14 +292,16 @@ Widget _generateProducts(BuildContext context, List<dynamic> products) {
         children: [
           Container(
             width: itemWidth,
-            margin: const EdgeInsets.only(right: 7, bottom: 14),
-            child: _buildProductItemContainer(context, products[i], itemWidth, itemHeight),
+            margin: const EdgeInsets.only(right: 7, top:10, bottom: 14),
+            child: _buildProductItemContainer(
+                context, products[i], itemWidth, itemHeight),
           ),
           if (i + 1 < products.length)
             Container(
               width: itemWidth,
               margin: const EdgeInsets.only(left: 7, bottom: 14),
-              child: _buildProductItemContainer(context, products[i + 1], itemWidth, itemHeight),
+              child: _buildProductItemContainer(
+                  context, products[i + 1], itemWidth, itemHeight),
             ),
         ],
       ),
@@ -263,28 +310,38 @@ Widget _generateProducts(BuildContext context, List<dynamic> products) {
   return Column(children: productWidgets);
 }
 
-Widget _buildProductItemContainer(BuildContext context, dynamic product, double width, double height) {
-  return Container(
-    decoration: BoxDecoration(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(10),
-      boxShadow: [
-        BoxShadow(
-          color: Colors.grey.withOpacity(0.3),
-          spreadRadius: 2,
-          blurRadius: 5,
-          offset: Offset(0, 3),
-        ),
-      ],
-    ),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Container(
-          height: height,
-          child: _buildProductItem(context, product),
-        ),
-      ],
+Widget _buildProductItemContainer(
+    BuildContext context, dynamic product, double width, double height) {
+  return GestureDetector(
+    onTap: () {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => ProductDetailPage(product: product)),
+      );
+    },
+    child: Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.3),
+            spreadRadius: 2,
+            blurRadius: 5,
+            offset: Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Container(
+            height: height,
+            child: _buildProductItem(context, product),
+          ),
+        ],
+      ),
     ),
   );
 }
@@ -312,7 +369,7 @@ Widget _buildProductItem(BuildContext context, dynamic product) {
       Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8.0),
         child: Text(
-       "${product['price'].toStringAsFixed(2)} тг",
+          "${product['price'].toStringAsFixed(2)} тг",
           style: TextStyle(fontSize: 14, color: Colors.grey),
         ),
       ),
@@ -320,27 +377,26 @@ Widget _buildProductItem(BuildContext context, dynamic product) {
   );
 }
 
-
-  // Widget _buildProductItem(BuildContext context, dynamic product) {
-  //   return GestureDetector(
-  //     onTap: () {
-  //       Navigator.push(
-  //         context,
-  //         MaterialPageRoute(
-  //           builder: (context) => ProductDetailPage(product: product),
-  //         ),
-  //       );
-  //     },
-  //     child: Column(
-  //       children: [
-  //         Image.network(product['imageUrl']),
-  //         Text(product['name']),
-  //         Text(product['size'] ?? ''),
-  //         Text('${product['price']}'),
-  //       ],
-  //     ),
-  //   );
-  // }
+// Widget _buildProductItem(BuildContext context, dynamic product) {
+//   return GestureDetector(
+//     onTap: () {
+//       Navigator.push(
+//         context,
+//         MaterialPageRoute(
+//           builder: (context) => ProductDetailPage(product: product),
+//         ),
+//       );
+//     },
+//     child: Column(
+//       children: [
+//         Image.network(product['imageUrl']),
+//         Text(product['name']),
+//         Text(product['size'] ?? ''),
+//         Text('${product['price']}'),
+//       ],
+//     ),
+//   );
+// }
 class ProductDetailPage extends StatelessWidget {
   final dynamic product;
 
@@ -350,48 +406,11 @@ class ProductDetailPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(product['name']),
+        title: Text('Продукт'),
       ),
       body: ListView(
         padding: EdgeInsets.zero,
         children: [
-          Container(
-            margin: const EdgeInsets.only(top: 20.0),
-            height: 40,
-            child: Stack(
-              children: [
-                Center(
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(product['name'], style: TextStyle(fontSize: 24)),
-                      Container(
-                        margin: const EdgeInsets.only(left: 5, top: 6),
-                        child: Text(
-                          product['size'] ?? '',
-                          style: TextStyle(
-                            color: Colors.black.withOpacity(0.7),
-                            fontSize: 14,
-                            fontWeight: FontWeight.normal,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                  margin: const EdgeInsets.only(left: 16),
-                  child: IconButton(
-                    icon: Icon(Icons.arrow_back),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ),
           Container(
             margin: const EdgeInsets.only(top: 12, left: 16.0, right: 16.0),
             padding: const EdgeInsets.all(50),
@@ -403,7 +422,130 @@ class ProductDetailPage extends StatelessWidget {
               child: Image.network(product['imageUrl']),
             ),
           ),
+          Align(
+            alignment: Alignment.bottomRight,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Container(
+                  margin: const EdgeInsets.only(left: 20),
+                  child: Text(
+                    "${product['name']}",
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.w600,
+                      fontFamily: 'Rubik',
+                      fontSize: 16,
+                    ),
+                  ),
+                )
+              ],
+            ),
+          ),
+          Align(
+            alignment: Alignment.bottomRight,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Container(
+                  margin: const EdgeInsets.only(left: 20),
+                  child: Text(
+                    "${product['category']}",
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.w600,
+                      fontFamily: 'Rubik',
+                      fontSize: 16,
+                    ),
+                  ),
+                )
+              ],
+            ),
+          ),
+          Align(
+            alignment: Alignment.bottomRight,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Container(
+                  margin: const EdgeInsets.only(left: 20),
+                  child: Text(
+                    "${product['price']}₸",
+                    style: const TextStyle(
+                      color: AppColor.primary,
+                      fontWeight: FontWeight.w600,
+                      fontFamily: 'Rubik',
+                      fontSize: 16,
+                    ),
+                  ),
+                )
+              ],
+            ),
+          ),
+          Align(
+            alignment: Alignment.bottomRight,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Container(
+                  margin: const EdgeInsets.only(left: 20),
+                  child: ElevatedButton(
+                    onPressed: () {},
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color(0xFF62CA7F),
+                      foregroundColor:
+                          Colors.white, // Серый цвет для первой кнопки
+                    ),
+                    child: Text('Добавить в корзину'),
+                  ),
+                )
+              ],
+            ),
+          )
         ],
+      ),
+    );
+  }
+
+  Widget _cartButton() {
+    return SizedBox(
+      height: 30,
+      child: InkWell(
+        onTap: () {},
+        borderRadius: BorderRadius.circular(5),
+        child: Container(
+          height: 30,
+          padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
+          decoration: BoxDecoration(
+              color: AppColor.primary, borderRadius: BorderRadius.circular(5)),
+          child: const Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.shopping_cart_rounded,
+                color: Colors.white,
+                size: 14,
+              ),
+              Text(
+                "  В корзину",
+                style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontFamily: 'Rubik',
+                    fontWeight: FontWeight.normal),
+              )
+            ],
+          ),
+        ),
       ),
     );
   }
