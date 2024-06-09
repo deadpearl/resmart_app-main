@@ -25,6 +25,7 @@ class HomePage extends StatefulWidget {
   @override
   _HomePageState createState() => _HomePageState();
 }
+
 class Category {
   final String name;
   final String imageUrl;
@@ -35,13 +36,14 @@ class Category {
 class _HomePageState extends State<HomePage> {
   late Future<List<dynamic>> _futureProducts;
   final _searchController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
     _futureProducts = fetchProducts();
   }
 
-final List<Map<String, String>> categories = [
+  final List<Map<String, String>> categories = [
     {'name': 'Овощи', 'imageUrl': 'assets/images/1.jpg'},
     {'name': 'Напитки', 'imageUrl': 'assets/images/2.jpg'},
     {'name': 'Хоз товары', 'imageUrl': 'assets/images/3.jpg'},
@@ -49,9 +51,6 @@ final List<Map<String, String>> categories = [
     {'name': 'Сырная', 'imageUrl': 'assets/images/5.jpeg'},
     {'name': 'Молочные', 'imageUrl': 'assets/images/6.jpg'},
   ];
-
-
-
 
   Future<List<dynamic>> fetchProducts() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -138,67 +137,62 @@ final List<Map<String, String>> categories = [
                   ],
                 ),
               ),
-
-
-Center(
-        child: CarouselSlider(
-          options: CarouselOptions(
-            height: 250,
-            autoPlay: true,
-            enlargeCenterPage: true,
-          ),
-          items: categories.map((category) {
-            return Builder(
-              builder: (BuildContext context) {
-                return Container(
-
-
-                  width: MediaQuery.of(context).size.width,
-                  margin: EdgeInsets.only(left: 5.0, top: 5.0, right: 5.0, bottom: 5.0),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(15),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.5),
-                        spreadRadius: 5,
-                        blurRadius: 7,
-                        offset: Offset(0, 3),
-                      ),
-                    ],
+              Center(
+                child: CarouselSlider(
+                  options: CarouselOptions(
+                    height: 250,
+                    autoPlay: true,
+                    enlargeCenterPage: true,
                   ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Image.asset(
-                        "${category['imageUrl']!}",
-          fit: BoxFit.cover,
-          height: 100, // Fixed height for the image
-          width: double.infinity, 
-                    ),
-                      
-                      SizedBox(height: 10),
-                      Text(
-                        category['name']!,
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
-                      SizedBox(height: 10),
-                      ElevatedButton(
-                        onPressed: () {
-                          // Обработка нажатия кнопки
-                        },
-                        child: Text('Перейти'),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            );
-          }).toList(),
-        ),
-      ),
-
-              
+                  items: categories.map((category) {
+                    return Builder(
+                      builder: (BuildContext context) {
+                        return Container(
+                          width: MediaQuery.of(context).size.width,
+                          margin: EdgeInsets.only(
+                              left: 5.0, top: 5.0, right: 5.0, bottom: 5.0),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(15),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.withOpacity(0.5),
+                                spreadRadius: 5,
+                                blurRadius: 7,
+                                offset: Offset(0, 3),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Image.asset(
+                                "${category['imageUrl']!}",
+                                fit: BoxFit.cover,
+                                height: 100, // Fixed height for the image
+                                width: double.infinity,
+                              ),
+                              SizedBox(height: 10),
+                              Text(
+                                category['name']!,
+                                style: TextStyle(
+                                    fontSize: 18, fontWeight: FontWeight.bold),
+                              ),
+                              SizedBox(height: 10),
+                              ElevatedButton(
+                                onPressed: () {
+                                  // Обработка нажатия кнопки
+                                },
+                                child: Text('Перейти'),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    );
+                  }).toList(),
+                ),
+              ),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 20.0),
                 child: FutureBuilder<List<dynamic>>(
@@ -218,16 +212,11 @@ Center(
                   },
                 ),
               ),
-
-
-
-
             ],
           )),
     );
   }
 }
-
 
 class CategoryCard extends StatelessWidget {
   final Category category;
@@ -292,7 +281,7 @@ Widget _generateProducts(BuildContext context, List<dynamic> products) {
         children: [
           Container(
             width: itemWidth,
-            margin: const EdgeInsets.only(right: 7, top:10, bottom: 14),
+            margin: const EdgeInsets.only(right: 7, top: 10, bottom: 14),
             child: _buildProductItemContainer(
                 context, products[i], itemWidth, itemHeight),
           ),
@@ -377,67 +366,173 @@ Widget _buildProductItem(BuildContext context, dynamic product) {
   );
 }
 
-// Widget _buildProductItem(BuildContext context, dynamic product) {
-//   return GestureDetector(
-//     onTap: () {
-//       Navigator.push(
-//         context,
-//         MaterialPageRoute(
-//           builder: (context) => ProductDetailPage(product: product),
-//         ),
-//       );
-//     },
-//     child: Column(
-//       children: [
-//         Image.network(product['imageUrl']),
-//         Text(product['name']),
-//         Text(product['size'] ?? ''),
-//         Text('${product['price']}'),
-//       ],
-//     ),
-//   );
-// }
 class ProductDetailPage extends StatelessWidget {
   final dynamic product;
 
   ProductDetailPage({required this.product});
 
+  void addToCard(BuildContext context) async {
+    var profileinfo = null;
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString('token');
+    print('token $token');
+    final responseProfile = await http.get(
+      Uri.parse('$baseUrl/my'),
+      headers: {
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (responseProfile.statusCode == 200) {
+      String responseBody = utf8.decode(responseProfile.bodyBytes);
+      print(responseBody);
+      profileinfo = jsonDecode(responseBody);
+    } else {
+      throw Exception('Failed to load profile');
+    }
+
+    Map<String, dynamic> orderData = {
+      'totalPrice': product['price'],
+      'restaurant': profileinfo['id'],
+      'orderItems': [
+        {
+          'totalPrice': product['price'], // Используйте актуальные данные
+          'price': product['price'],
+          'quantity': 1, // Установите нужное количество
+          'product': {
+            'id': product['id'],
+            'reviews': [],
+          },
+          'orderDate': '2024-06-09', // Установите нужную дату
+          'deliveryDate': '2024-06-11', // Установите нужную дату
+          'payWay': 5, // Или 6, выберите подходящий способ оплаты
+          'supplier': {
+            'id': profileinfo['id'],
+          },
+        }
+      ],
+    };
+
+    print(product);
+
+    final response = await http.post(
+      Uri.parse('$baseUrl/cart/add'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode(orderData),
+    );
+
+    if (response.statusCode == 200) {
+         showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Успешно'),
+          content: Text('Заказ добавлен успешно!'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('ОК'),
+              onPressed: () {
+                Navigator.of(context).pop(); // Закрыть попап
+              },
+            ),
+          ],
+        );
+      },
+    );
+      print('Order added successfully');
+    } else {
+      print('Failed to add order');
+      print('Status code: ${response.statusCode}');
+      print('Response: ${response.body}');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    bool isFavorite = false;
     return Scaffold(
       appBar: AppBar(
-        title: Text('Продукт'),
+        title: Text('Продукты'),
       ),
       body: ListView(
         padding: EdgeInsets.zero,
         children: [
           Container(
             margin: const EdgeInsets.only(top: 12, left: 16.0, right: 16.0),
-            padding: const EdgeInsets.all(50),
+            padding: const EdgeInsets.only(right: 50, left: 50, top: 20),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10),
             ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(10),
-              child: Image.network(product['imageUrl']),
+              child: Image.network(
+                product['imageUrl'],
+                width: 100,
+                height: 300,
+              ),
             ),
           ),
           Align(
-            alignment: Alignment.bottomRight,
+              alignment: Alignment.topLeft,
+              child: StatefulBuilder(
+                  builder: (BuildContext context, StateSetter setState) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Container(
+                      margin:
+                          const EdgeInsets.only(top: 10, left: 35, bottom: 20),
+                      width: 50,
+                      child: IconButton(
+                        icon: Icon(
+                          isFavorite ? Icons.favorite : Icons.favorite_border,
+                          color: isFavorite ? Colors.red : Colors.grey,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            isFavorite = !isFavorite;
+                          });
+                          print('Favorite status: $isFavorite');
+                        },
+                        iconSize: 24.0, // Размер иконки
+                        padding: EdgeInsets.all(8.0), // Отступы внутри кнопки
+                        constraints: BoxConstraints(
+                          minHeight: 48.0,
+                          minWidth: 48.0,
+                        ),
+                        // Фон кнопки с помощью BoxDecoration
+                        splashRadius: 24.0,
+                        splashColor: Colors.red.withOpacity(0.2),
+                      ),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.grey[300], // Цвет фона кнопки
+                      ),
+                    ),
+                  ],
+                );
+              })),
+          Align(
+            alignment: Alignment.bottomLeft,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 Container(
-                  margin: const EdgeInsets.only(left: 20),
+                  margin: const EdgeInsets.only(left: 40, right: 40),
                   child: Text(
                     "${product['name']}",
                     style: const TextStyle(
                       color: Colors.black,
                       fontWeight: FontWeight.w600,
                       fontFamily: 'Rubik',
-                      fontSize: 16,
+                      fontSize: 20,
                     ),
                   ),
                 )
@@ -445,21 +540,21 @@ class ProductDetailPage extends StatelessWidget {
             ),
           ),
           Align(
-            alignment: Alignment.bottomRight,
+            alignment: Alignment.bottomLeft,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 Container(
-                  margin: const EdgeInsets.only(left: 20),
+                  margin: const EdgeInsets.only(left: 40),
                   child: Text(
                     "${product['category']}",
                     style: const TextStyle(
-                      color: Colors.black,
-                      fontWeight: FontWeight.w600,
+                      color: Colors.grey,
+                      fontWeight: FontWeight.w400,
                       fontFamily: 'Rubik',
-                      fontSize: 16,
+                      fontSize: 18,
                     ),
                   ),
                 )
@@ -467,21 +562,21 @@ class ProductDetailPage extends StatelessWidget {
             ),
           ),
           Align(
-            alignment: Alignment.bottomRight,
+            alignment: Alignment.bottomLeft,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 Container(
-                  margin: const EdgeInsets.only(left: 20),
+                  margin: const EdgeInsets.only(left: 40, top: 20),
                   child: Text(
                     "${product['price']}₸",
                     style: const TextStyle(
                       color: AppColor.primary,
                       fontWeight: FontWeight.w600,
                       fontFamily: 'Rubik',
-                      fontSize: 16,
+                      fontSize: 20,
                     ),
                   ),
                 )
@@ -489,18 +584,21 @@ class ProductDetailPage extends StatelessWidget {
             ),
           ),
           Align(
-            alignment: Alignment.bottomRight,
+            alignment: Alignment.center,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 Container(
-                  margin: const EdgeInsets.only(left: 20),
+                  margin: const EdgeInsets.only(top: 40),
+                  width: 270,
                   child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      addToCard(context);
+                    },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0xFF62CA7F),
+                      backgroundColor: Color.fromARGB(255, 90, 121, 99),
                       foregroundColor:
                           Colors.white, // Серый цвет для первой кнопки
                     ),
