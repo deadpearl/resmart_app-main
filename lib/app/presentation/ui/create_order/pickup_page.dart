@@ -12,8 +12,11 @@ import 'package:resmart/app/presentation/ui/custom/widget/primary_button.dart';
 import 'package:resmart/app/presentation/ui/orders/create_order_page.dart';
 
 class PickupPage extends StatefulWidget {
+  var totalPrice;
 
-  const PickupPage({super.key});
+
+ 
+   PickupPage({ this.totalPrice});
 
   @override
   State<StatefulWidget> createState() {
@@ -36,6 +39,7 @@ class _PickupPage extends State<PickupPage> {
 
   @override
   Widget build(BuildContext context) {
+     double totalPrice = widget.totalPrice;
     Size size = MediaQuery.of(context).size;
     return MaterialApp(
       home: Scaffold(
@@ -61,12 +65,12 @@ class _PickupPage extends State<PickupPage> {
                     const HeaderText("Стоимость", size: 18),
                     Container(
                       margin: EdgeInsets.only(top: 10),
-                      child: const Row(
+                      child:  Row(
                         children: [
                           DescriptionText("Итоговая цена"),
                           Expanded(
                             child: Text(
-                              "20,000₸",
+                              "$totalPrice",
                               textAlign: TextAlign.end,
                               style: TextStyle(
                                   color: Colors.black,
@@ -105,12 +109,12 @@ class _PickupPage extends State<PickupPage> {
                     ),
                     Container(
                       margin: const EdgeInsets.only(top: 8, bottom: 20),
-                      child: const Row(
+                      child:  Row(
                         children: [
                           DescriptionText("Итого"),
                           Expanded(
                             child: Text(
-                              "20,800₸",
+                              "${totalPrice+800}",
                               textAlign: TextAlign.end,
                               style: TextStyle(
                                 color: AppColor.primary,

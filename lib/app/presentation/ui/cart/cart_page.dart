@@ -78,7 +78,7 @@ double calculateTotalPrice() {
 }
  
   void _order() {
-    NavigationUtils.push(context, const PickupPage());
+    NavigationUtils.push(context,  PickupPage(totalPrice: calculateTotalPrice()));
   }
 
 @override
