@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:resmart/app/domain/provider/api.dart';
 import 'package:resmart/app/presentation/model/Product.dart';
 import 'package:resmart/app/presentation/model/Shop.dart';
 import 'package:resmart/app/presentation/ui/create_order/pickup_page.dart';
@@ -11,6 +12,9 @@ import 'package:resmart/app/presentation/ui/custom/widget/primary_button.dart';
 import 'package:resmart/app/presentation/ui/product/product_list_item.dart';
 import 'package:resmart/app/presentation/ui/product/product_page.dart';
 import 'package:resmart/app/presentation/ui/shop/shop_products_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class CartPage extends StatefulWidget {
 
@@ -24,6 +28,45 @@ class CartPage extends StatefulWidget {
 
 class _CartPage extends State<CartPage> {
 
+  var cart; 
+  bool _isLoading = true; 
+    @override
+  void initState() {
+    super.initState();
+    fetchCart();
+  }
+
+ Future<void> fetchCart() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString('token');
+
+    print('token $token');
+    final response = await http.get(
+      Uri.parse('$baseUrl/cart'),
+      headers: {
+        'Authorization': 'Bearer $token',
+      },
+    );
+    print(response);
+
+    if (response.statusCode == 200) {
+      String responseBody = utf8.decode(response.bodyBytes);
+      print('CART');
+      print(responseBody);
+      setState(() {
+        cart = jsonDecode(responseBody);
+        _isLoading = false; // Завершаем загрузку после получения данных
+      });
+    } else {
+      setState(() {
+        _isLoading = false; // Завершаем загрузку даже в случае ошибки
+      });
+      throw Exception('Failed to load profile');
+    }
+  }
+
+
+ 
   void _order() {
     NavigationUtils.push(context, const PickupPage());
   }
